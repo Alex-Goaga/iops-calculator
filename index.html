@@ -1,0 +1,74 @@
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<title>IOPS Calculator</title>
+	</head>
+	<body>
+		<font face="arial">
+			IOPS Calculator 
+			<br><br>
+			<script type="text/javascript">
+				document.write("<table border='0' cellpadding='0' cellspacing='10'>");
+				document.write("<tr>");
+				document.write("<td>Drive Speed (RPM):</td>");
+				document.write("<td><input type='text' id='input_HDD_rpm' value='0'></td>");
+				document.write("</tr>");
+				document.write("<tr>");
+				document.write("<td>Average Read Seek Time (in ms):</td>");
+				document.write("<td><input type='text' id='input_read_seek_time' value='0'></td>");
+				document.write("</td></tr>");
+				document.write("<tr>");
+				document.write("<td>Average Write Seek Time (in ms):</td>");
+				document.write("<td><input type='text' id='input_write_seek_time' value='0'></td>");
+				document.write("</td></tr>");
+				document.write("<tr><td><input type='button' value='calculate' onclick='calculate();'></td></tr>");
+				document.write(" </table>");
+				
+				document.write("<br><br><br>");
+				document.write("<br>You can find all the data required for the input on the label of the hard-drive.");
+				document.write("<br>If you can't find the data required, please check out the manufactures website for your specific drive.");
+				document.write("<br><br><i>This calculator is based on the basic math of RAID 0 (no read / write penalty) </i>");
+				
+				// CALCULATE IOPS
+				function calculate(){
+				
+				//Get inputbox values and store in javascript variables
+				var rpm=document.getElementById('input_HDD_rpm').value;
+				var read_seek_time=document.getElementById('input_read_seek_time').value;
+				var write_seek_time=document.getElementById('input_write_seek_time').value;
+				
+				//Convert string to integer for input variables
+				rpm = parseFloat(rpm);
+				read_seek_time = parseFloat(read_seek_time);
+				write_seek_time = parseFloat(write_seek_time);
+				
+				// Calculate time it takes (in ms) for 1/2 a rotation of the disk
+				var half_rotation_time=rpm/60;
+				half_rotation_time=1/half_rotation_time;
+				half_rotation_time=half_rotation_time/2;
+				
+				// Calculate the seek time for 50% random reads, 50% random writes
+				var random_rw_seek_time=write_seek_time - read_seek_time;
+				random_rw_seek_time=random_rw_seek_time/2;
+				random_rw_seek_time=write_seek_time - random_rw_seek_time;
+				
+				// Calculate the IOPS
+				var min_iops=(1/(write_seek_time+half_rotation_time))*1000;
+				var max_iops=(1/(read_seek_time+half_rotation_time))*1000;
+				var random_rw_iops=(1/(random_rw_seek_time + half_rotation_time))*1000;
+				
+				// Print the results
+				document.write("1/2 Rotation Time: " + half_rotation_time);
+				document.write("<br>Minimum IOPS (random writes): " + min_iops);
+				document.write("<br>Maximum IOPS (random reads): " + max_iops);
+				document.write("<br>Average IOPS (50% reads, 50% writes): " + random_rw_iops);
+				
+				}
+				
+			</script>
+
+			
+			<br><br>
+		</font>
+	</body>
+</html>
